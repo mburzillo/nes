@@ -1,0 +1,63 @@
+
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+library(googlesheets4)
+library(moderndive)
+library(infer)
+```
+
+
+```{r}
+Sampling_Sheet1 <- read_csv("Sampling - Sheet1.csv")
+```
+
+
+```{r}
+
+
+percent <- x %>%
+  mutate(perc_red = Red / 25)
+
+
+percent %>%
+  mutate(perc_red = Red / 25) %>%
+  ggplot(aes(perc_red)) +
+  geom_histogram()
+
+quantile(percent$perc_red, c(.025, .975))
+
+```
+
+```{r}
+
+# try to simulate the process that the class went through yesterday: build an urn
+
+urn <- tibble(
+  bead_id = 1:1000,
+  color = c(rep("Red", median(percent$perc_red) * 1000), rep("White", 1000 * (1- median(percent$perc_red))))
+)
+
+urn %>%
+  group_by(color) %>%
+  count()
+
+shovel <- urn %>%
+  rep_sample_n(size = 25, reps = 51)
+
+shovel_per <- shovel %>%
+  group_by(replicate) %>%
+  mutate(perc_red = sum(color == "Red")/25) 
+
+shovel_per %>%
+  ggplot(aes(x = perc_red)) +
+  geom_histogram()
+
+quantile(shovel_per$perc_red, c(.025, .975))
+
+
+
+```
+
